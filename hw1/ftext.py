@@ -4,7 +4,7 @@ import image_resize
 
 def captch_ex(file_name):
     img = cv2.imread(file_name)
-    img = image_resize.resize(img, width=800)
+    img = image_resize.resize(img, width=600)
 
     img_final = cv2.imread(file_name)
     img2gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -21,7 +21,6 @@ def captch_ex(file_name):
     dilated = cv2.dilate(new_img, kernel, iterations=4)  # dilate , more the iteration more the dilation
 
     im, contours, hierarchy = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)  # get contours
-
 
     for contour in contours:
         # get rectangle bounding contour
