@@ -23,6 +23,6 @@ def draw_square_cntrs(img):
     cv2.waitKey(0)
 
 #img = cv2.imread('718910447_001.tif')
-img = cv2.imread('x1.jpg')
+img = cv2.imread('718910459_012.tif')
 im = ir.resize(img, height=800)
 draw_square_cntrs(im)
