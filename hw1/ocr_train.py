@@ -3,16 +3,51 @@ import cv2, numpy as np
 
 import image_resize 
 
-img = cv2.imread('images/IwQY6.png')
+def eqhist_clahe(img):
+  img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+  equ = cv2.equalizeHist(img)
+  # Contrast liomited adaptive histogram equalization
+  clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+  cl1 = clahe.apply(img)
+  # res = np.hstack((img,cl1)) #stacking images side-by-side
+  return cl1
+
+img = cv2.imread('images/IMG_20180331_180458.jpg')
 img = image_resize.resize(img, width=600)
 
-img1 = img.copy()
+imgx = eqhist_clahe(img)
 
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-blur = cv2.GaussianBlur(gray,(3,3),0)
+cv2.imshow('eahist', imgx)
+cv2.waitKey(0)
+
+# gray = cv2.cvtColor(imgx, cv2.COLOR_BGR2GRAY) Histogram equalized image is alredy gray
+blur = cv2.GaussianBlur(imgx,(1,1),0)
 thresh = cv2.adaptiveThreshold(blur,255,1,1,11,2)
 
+cv2.imshow('thresh', thresh)
+cv2.waitKey(0)
+
 imx, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+for contour in contours:
+  # get rectangle bounding contour
+  [x, y, w, h] = cv2.boundingRect(contour)
+
+  # Don't plot small false positives that aren't text
+  if w < 20 and h < 20:
+    continue
+
+  if w > 45 or h > 45:
+    continue
+
+  # draw rectangle around contour on original image
+  cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
+
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+sys.exit()
 
 samples =  np.empty((0,100))
 responses = []

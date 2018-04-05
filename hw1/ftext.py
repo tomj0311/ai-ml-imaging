@@ -52,5 +52,5 @@ def captch_ex(file_name):
     cv2.waitKey()
 
 
-file_name = '718910453_006.tif'
+file_name = 'images/a6.jpg'
 captch_ex(file_name)

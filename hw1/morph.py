@@ -3,7 +3,8 @@ import numpy as np
 import image_resize
 
 #method 1
-img = cv2.imread('images/a6.jpg', 0)
+img = cv2.imread('images/IMG_20180331_180458.jpg', 0)
+img = image_resize.resize(img, width=600)
 
 cv2.imshow('wing', img)
 cv2.waitKey(0)
