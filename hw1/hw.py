@@ -47,7 +47,7 @@ def get_contours(img):
 #     cv2.destroyAllWindows()
 
 if __name__=='__main__':
-    img = cv2.imread('d1.jpg')
+    img = cv2.imread('images/d1.jpg')
     img = image_resize.resize(img, width=600)
 
     for contour in get_contours(img):
