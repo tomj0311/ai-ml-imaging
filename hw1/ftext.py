@@ -10,10 +10,15 @@ def captch_ex(file_name):
     img2gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     ret, mask = cv2.threshold(img2gray, 127, 255, cv2.THRESH_BINARY)
-    image_final = cv2.bitwise_and(img2gray, img2gray, mask=mask)
-    cv2.imshow('imgfinal',image_final)
 
-    ret, new_img = cv2.threshold(image_final, 0, 255, cv2.THRESH_BINARY_INV)  # for black text , cv.THRESH_BINARY_INV
+    image_final = cv2.bitwise_and(img2gray, img2gray, mask=mask)
+
+    cv2.imshow('img2gray',img2gray)
+    cv2.imshow('mask',mask)
+    cv2.imshow('imgfinal',image_final)
+    cv2.waitKey(0)
+
+    ret, new_img = cv2.threshold(image_final, 127, 255, cv2.THRESH_BINARY_INV)  # for black text , cv.THRESH_BINARY_INV
     cv2.imshow('newimg',new_img)
     cv2.waitKey(0)
 
@@ -43,7 +48,7 @@ def captch_ex(file_name):
 
         '''
     # write original image with added contours to disk
-    cv2.imshow('captcha_result', img)
+    cv2.imshow('result', img)
     cv2.waitKey()
 
 
