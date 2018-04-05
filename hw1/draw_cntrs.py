@@ -10,7 +10,8 @@ def drawBoundingBox(img, cntrs):
 
     # Don't plot small false positives that aren't text
     # if w < 15 and h < 15:
-    # continue
+    # continue?
+    
 
     # draw rectangle around contour on original image
     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)

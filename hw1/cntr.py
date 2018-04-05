@@ -3,7 +3,7 @@ import numpy as np
 import image_resize
 
 maxArea = 150
-minArea = 10
+minArea = 5
 
 img = cv2.imread('images/XsSOP.jpg')
 img = image_resize.resize(img, height=600)
@@ -26,7 +26,7 @@ for compLabel in range(1,comp[0],1):
 labels[labels>0] =  1
 
 se = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(25,25))
-dilated = cv2.morphologyEx(comp[1].astype(np.uint8),cv2.MORPH_DILATE,se)
+dilated = cv2.morphologyEx(labels.astype(np.uint8),cv2.MORPH_DILATE,se)
 
 comp = cv2.connectedComponentsWithStats(dilated)
 
