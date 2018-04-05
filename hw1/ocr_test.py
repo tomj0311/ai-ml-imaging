@@ -8,7 +8,7 @@ responses = responses.reshape((responses.size))
 knn = cv2.ml.KNearest_create()
 knn.train(samples, cv2.ml.ROW_SAMPLE, responses)
 
-img = cv2.imread('images/51H1M.png')
+img = cv2.imread('images/dPaE8.png')
 out = np.zeros(img.shape,np.uint8)
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 thresh = cv2.adaptiveThreshold(gray,255,1,1,11,2)
