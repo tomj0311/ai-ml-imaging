@@ -23,7 +23,7 @@ def captch_ex(file_name):
     cv2.waitKey(0)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))  # to manipulate the orientation of dilution , large x means horizonatally dilating  more, large y means vertically dilating more
-    dilated = cv2.dilate(new_img, kernel, iterations=5)  # dilate , more the iteration more the dilation
+    dilated = cv2.dilate(new_img, kernel, iterations=3)  # dilate , more the iteration more the dilation
 
     im, contours, hierarchy = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)  # get contours
 
