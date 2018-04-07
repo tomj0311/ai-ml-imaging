@@ -12,7 +12,6 @@ grad = cv2.morphologyEx(small, cv2.MORPH_GRADIENT, kernel)
 _, thresh = cv2.threshold(grad, 0.0, 255.0, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
 kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 1))
-
 connected = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
 
 imx, contours, hierarchy = cv2.findContours(connected.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
