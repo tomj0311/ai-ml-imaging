@@ -1,13 +1,12 @@
 import cv2
 import numpy as np
 import image_resize
+import pytesseract
 
 #method 1
-img = cv2.imread('images/IMG_20180331_180458.jpg', 0)
+#img = cv2.imread('images/IMG_20180331_180458.jpg', 0) handwritten
+img = cv2.imread('images/659175802_001.tif', 0)
 img = image_resize.resize(img, width=600)
-
-cv2.imshow('wing', img)
-cv2.waitKey(0)
 
 # hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 # cv2.imshow('hsv', hsv[:,:,0])
@@ -23,6 +22,9 @@ filtered = cv2.adaptiveThreshold(img.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_
 kernel = np.ones((5,5), np.uint8)
 opening = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, kernel)
 closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
+
+text = pytesseract.image_to_string(closing, lang = 'eng')
+print(text)
 
 cv2.imshow('closing',closing)
 cv2.waitKey(0)

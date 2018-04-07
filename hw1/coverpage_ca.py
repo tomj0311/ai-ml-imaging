@@ -1,7 +1,7 @@
 import sys
 import cv2, numpy as np
 from matplotlib import pyplot as plt
-import json, codecs
+import pytesseract
 
 import image_resize 
 
@@ -26,11 +26,23 @@ cv2.waitKey(0)
 
 imx, contours, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
+indx = 1
+
 for contour in contours:
   [x, y, w, h] = cv2.boundingRect(contour)
 
   if w > 5 and h > 5:
     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
+
+    cropped = img[y :y +  h , x : x + w]
+
+    cv2.imshow(str(indx), cropped)
+    cv2.waitKey()
+
+    text = pytesseract.image_to_string(cropped, lang = 'eng')
+    print(text)
+
+    indx = indx + 1
 
 cv2.imshow('img', img)
 cv2.waitKey(0)
