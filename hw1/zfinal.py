@@ -1,5 +1,10 @@
-import cv2, numpy as np
+import cv2, numpy as np, imutils as im
+import pytesseract
 
+def get_contour_precedence(contour, cols):
+    tolerance_factor = 20
+    origin = cv2.boundingRect(contour)
+    return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
 
 def final_ex(file_name):
 
@@ -7,71 +12,70 @@ def final_ex(file_name):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # sharpen image
-    # ret, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ret, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    image_sharpened = cv2.bitwise_and(gray, gray, mask)
 
     # Some morphology to clean up image if the image is too dull
-    mask = cv2.adaptiveThreshold(gray.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 111, 2)
+    # mask = cv2.adaptiveThreshold(gray.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 111, 2)
 
-    kernel = np.ones((19,15), np.uint8)
-    opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (65, 2))
+    opening = cv2.morphologyEx(image_sharpened, cv2.MORPH_OPEN, kernel, iterations=1)
 
-    cv2.imshow('mask', mask)
-    cv2.waitKey(0)
+    # cv2.imshow('opening', opening)
+    # cv2.waitKey(0)
 
-    cv2.imshow('opening',opening)
-    cv2.waitKey(0)
-    
-    kernel = np.ones((9,15), np.uint8)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,4))
     closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
 
-    # closing = cv2.bitwise_and(gray, gray, mask=mask)
+    # cv2.imshow('closing', closing)
+    # cv2.waitKey(0)
 
-    cv2.imshow('final', closing)
-    cv2.waitKey(0)
-
-    # Apply gaussian filter - further smoothens image - less noise
-    # blur = cv2.GaussianBlur(closing, (5,5), 2)
     # binarise final 
-    ret, new_img = cv2.threshold(closing, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
+    ret, thresh = cv2.threshold(closing, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
 
-    cv2.imshow('thresh', new_img)
-    cv2.waitKey(0)
+    # cv2.imshow('thresh', thresh)
+    # cv2.waitKey(0)
 
     # find connected components
-    morph_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (14, 3))
-    connected = cv2.morphologyEx(new_img, cv2.MORPH_CLOSE, morph_kernel)
+    morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (65, 3))
+    connected = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, morph_kernel)
 
-    cv2.imshow('connected', connected)
-    cv2.waitKey(0)
+    # cv2.imshow('connected', connected)
+    # cv2.waitKey(0)
 
     # find contours
     imx, contours, hierarchy = cv2.findContours(connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  
 
+    contours.sort(key=lambda x:get_contour_precedence(x, img.shape[1]))
+
     index = 1
-    # draw contours
-    for contour in contours:
-        # get rectangle bounding contour
-        [x, y, w, h] = cv2.boundingRect(contour)
 
-        # # Don't plot small false positives tha1t aren't text
-        if w < 15 and h < 15:
-            continue
+    for idx in range(0, len(hierarchy[0])):
+        rect = x, y, w, h = cv2.boundingRect(contours[idx])
 
-        # #Don't plot large false poistives that arent text
-        # if w > 100:
-        #   continue
+        # Don't plot small false positives tha1t aren't text
+        if w * h > 400:
+            
+            cropped = img[y :y +  h , x : x + w]
+            # cv2.imwrite('cropped/' + str(index) + '.png', cropped)
+            text = pytesseract.image_to_string(cropped, lang = 'eng')
+            print(text)
 
-        # draw rectangle around contour on original image
-        cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
+            image_with_boxes = cv2.rectangle(img, (x, y+h), (x+w, y), (0,255,0), 2)
+            
+            index = index + 1
 
-        cropped = img[y :y +  h , x : x + w]
-        cv2.imwrite('cropped/' + str(index) + '.jpg', cropped)
-        index = index + 1
+    cv2.imshow('final', image_with_boxes)
+    cv2.waitKey(0)
 
-    # write original image with added contours to disk
-    cv2.imshow('captcha_result', img)
-    cv2.waitKey()
-
-
-file_name = 'images/659175813_012.tif'
+# file_name = 'images/659180599_002.tif'
+# final_ex(file_name)
+# file_name = 'images/659180602_005.tif'
+# final_ex(file_name)
+# file_name = 'images/659175810_009.tif'
+# final_ex(file_name)
+file_name = 'images/659180598_001.tif'
 final_ex(file_name)
+# file_name = 'images/659180603_006.tif'
+# final_ex(file_name)
+
