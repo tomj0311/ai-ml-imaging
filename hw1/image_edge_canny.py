@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import image_resize
 
-img = cv2.imread('images/IMG_20180331_180458.jpg',0)
-img = image_resize.resize(img,width=600)
+img = cv2.imread('images/659175809_008.tif',0)
+img = image_resize.resize(img,width=800)
 
 edges = cv2.Canny(img,100,200)
 

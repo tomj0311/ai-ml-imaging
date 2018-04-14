@@ -12,9 +12,9 @@ imgx = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 imgx = cv2.GaussianBlur(imgx, (5,5), 2)
 # imgx = cv2.blur(imgx, (5,5), 2)
 
-kernel = np.ones((1,4), np.uint8) #cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 3))
 #grad = cv2.morphologyEx(imgx, cv2.MORPH_DILATE, kernel)
-grad = cv2.dilate(imgx, kernel, iterations=2)
+grad = cv2.erode(imgx, kernel, iterations=1)
 
 cv2.imshow('w', grad)
 cv2.waitKey(0)
@@ -31,7 +31,7 @@ imx, contours, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_LIST, cv2.CH
 for contour in contours:
   [x, y, w, h] = cv2.boundingRect(contour)
 
-  if h > 5:
+  if h > 5 and w > 5:
     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
 
 cv2.imshow('img', img)

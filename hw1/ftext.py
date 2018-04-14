@@ -19,10 +19,11 @@ def captch_ex(file_name):
     cv2.waitKey(0)
 
     ret, new_img = cv2.threshold(image_final, 127, 255, cv2.THRESH_BINARY_INV)  # for black text , cv.THRESH_BINARY_INV
+
     cv2.imshow('newimg',new_img)
     cv2.waitKey(0)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))  # to manipulate the orientation of dilution , large x means horizonatally dilating  more, large y means vertically dilating more
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7,1))  # to manipulate the orientation of dilution , large x means horizonatally dilating  more, large y means vertically dilating more
     dilated = cv2.dilate(new_img, kernel, iterations=3)  # dilate , more the iteration more the dilation
 
     im, contours, hierarchy = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)  # get contours
@@ -32,11 +33,10 @@ def captch_ex(file_name):
         [x, y, w, h] = cv2.boundingRect(contour)
 
         # Don't plot small false positives that aren't text
-        if w < 15 and h < 15:
-            continue
+        if w > 15 and h > 15:
 
-        # draw rectangle around contour on original image
-        cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
+            # draw rectangle around contour on original image
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
 
         '''
         #you can crop image and send to OCR  , false detected will return no text :)
@@ -52,5 +52,5 @@ def captch_ex(file_name):
     cv2.waitKey()
 
 
-file_name = 'images/a6.jpg'
+file_name = 'images/659175803_002.tif'
 captch_ex(file_name)
