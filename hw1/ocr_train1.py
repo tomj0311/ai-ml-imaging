@@ -13,7 +13,7 @@ def eqhist_clahe(img):
   # res = np.hstack((img,cl1)) #stacking images side-by-side
   return cl1
 
-img = cv2.imread(filename='images/IMG_20180331_180458.jpg')
+img = cv2.imread(filename='images/XBGDQ.png')
 img = image_resize.resize(image=img, width=600)
 
 gray = cv2.cvtColor(src=img, code=cv2.COLOR_BGR2GRAY)
@@ -25,39 +25,39 @@ sobely = cv2.Sobel(img,cv2.CV_64F,0,1,ksize=5)
 
 edges = cv2.Canny(image=gray, threshold1=50, threshold2=150,apertureSize = 3)
 
-cv2.imshow('l', laplacian)
-cv2.imshow('sx', sobelx)
-cv2.imshow('sy', sobely)
-cv2.waitKey(0)
+# cv2.imshow('l', laplacian)
+# cv2.imshow('sx', sobelx)
+# cv2.imshow('sy', sobely)
+# cv2.waitKey(0)
 
-plt.imshow(gray)
-plt.show()
+cv2.imshow('edges', edges)
+cv2.waitKey(0)
 
 # ret,thresh = cv2.thres hold(gray,100,255,cv2.THRESH_BINARY)
 blur = cv2.GaussianBlur(gray,(3,3),2)
-thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,75,10)
+thresh = cv2.adaptiveThreshold(edges,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY_INV,75,10)
 
-plt.imshow(thresh)
-plt.show()
+cv2.imshow('thresh', thresh)
+cv2.waitKey(0)
 
-imx, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+imx, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 for contour in contours:
   # get rectangle bounding contour
   [x, y, w, h] = cv2.boundingRect(contour)
 
   # Don't plot small false positives that aren't text
-  if w < 20 and h < 20:
+  if w < 10 and h < 10:
      continue
 
-  if w > 30:
+  if w > 50:
      continue
 
   # draw rectangle around contour on original image
-  cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 1)
+  cv2.rectangle(gray, (x, y), (x + w, y + h), (0, 0, 255), 1)
 
-plt.imshow(img)
-plt.show()
+cv2.imshow('img', gray)
+cv2.waitKey(0)
 
 sys.exit()
 

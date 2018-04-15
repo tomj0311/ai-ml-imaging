@@ -10,34 +10,44 @@ def final_ex(file_name):
 
     img = cv2.imread(file_name)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # sharpen image
-    ret, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    image_sharpened = cv2.bitwise_and(gray, gray, mask)
-
-    # Some morphology to clean up image if the image is too dull
-    # mask = cv2.adaptiveThreshold(gray.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 111, 2)
-
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (65, 2))
-    opening = cv2.morphologyEx(image_sharpened, cv2.MORPH_OPEN, kernel, iterations=1)
-
-    # cv2.imshow('opening', opening)
+    
+    # cv2.imshow('gray', gray)
     # cv2.waitKey(0)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,4))
-    closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
+    # ret, mask = cv2.threshold(gray.copy(), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    mask = cv2.adaptiveThreshold(gray.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 111, 2)
 
-    # cv2.imshow('closing', closing)
+    image_sharpened = cv2.bitwise_and(gray, gray, mask)
+
+    # cv2.imshow('mask', mask)
+    # cv2.waitKey(0)
+
+    # cv2.imshow('sharpened', image_sharpened)
+    # cv2.waitKey(0)
+
+    # morphology to clean up image if the image is too dull
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (65, 3))
+    morphed = cv2.morphologyEx(image_sharpened, cv2.MORPH_OPEN, kernel)
+
+    # cv2.imshow('opening', morphed)
+    # cv2.waitKey(0)
+
+    # Closing operation is more required with handwritten images to remove details
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,3))
+    # morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel)
+
+    # cv2.imshow('closing', morphed)
     # cv2.waitKey(0)
 
     # binarise final 
-    ret, thresh = cv2.threshold(closing, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
+    ret, thresh = cv2.threshold(morphed, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
 
     # cv2.imshow('thresh', thresh)
     # cv2.waitKey(0)
 
     # find connected components
-    morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (65, 3))
+    morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (55, 3))
     connected = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, morph_kernel)
 
     # cv2.imshow('connected', connected)
@@ -53,11 +63,12 @@ def final_ex(file_name):
     for idx in range(0, len(hierarchy[0])):
         rect = x, y, w, h = cv2.boundingRect(contours[idx])
 
-        # Don't plot small false positives tha1t aren't text
-        if w * h > 400:
+        # Don't plot small false positives that aren't text
+        if w * h > 300:
             
             cropped = img[y :y +  h , x : x + w]
-            # cv2.imwrite('cropped/' + str(index) + '.png', cropped)
+            cv2.imwrite('cropped/' + str(index) + '.png', cropped)
+            
             text = pytesseract.image_to_string(cropped, lang = 'eng')
             print(text)
 
@@ -67,6 +78,7 @@ def final_ex(file_name):
 
     cv2.imshow('final', image_with_boxes)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 # file_name = 'images/659180599_002.tif'
 # final_ex(file_name)
@@ -74,8 +86,10 @@ def final_ex(file_name):
 # final_ex(file_name)
 # file_name = 'images/659175810_009.tif'
 # final_ex(file_name)
-file_name = 'images/659180598_001.tif'
+# file_name = 'images/659180598_001.tif'
+# final_ex(file_name)
+file_name = 'images/659180603_006.tif'
 final_ex(file_name)
-# file_name = 'images/659180603_006.tif'
+# file_name = 'images/VfDfJ.png'
 # final_ex(file_name)
 

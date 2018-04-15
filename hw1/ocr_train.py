@@ -12,7 +12,7 @@ def eqhist_clahe(img):
   # res = np.hstack((img,cl1)) #stacking images side-by-side
   return cl1
 
-img = cv2.imread('images/IMG_20180331_180458.jpg')
+img = cv2.imread('images/XBGDQ.png')
 img = image_resize.resize(img, width=600)
 
 imgx = eqhist_clahe(img)
@@ -21,23 +21,32 @@ cv2.imshow('eahist', imgx)
 cv2.waitKey(0)
 
 # gray = cv2.cvtColor(imgx, cv2.COLOR_BGR2GRAY) Histogram equalized image is alredy gray
-blur = cv2.GaussianBlur(imgx,(1,1),0)
-thresh = cv2.adaptiveThreshold(blur,255,1,1,11,2)
+thresha = cv2.adaptiveThreshold(imgx.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-cv2.imshow('thresh', thresh)
+cv2.imshow('thresha', thresha)
 cv2.waitKey(0)
 
-imx, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+morphed = cv2.morphologyEx(thresha, cv2.MORPH_DILATE, kernel)
+
+morphed = cv2.morphologyEx(morphed, cv2.MORPH_ERODE, kernel)
+
+cv2.imshow('morphed', morphed)
+cv2.waitKey(0)
+
+# binarize final 
+ret, thresh = cv2.threshold(morphed, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
+
+cv2.imshow('binary', thresh)
+cv2.waitKey(0)
+
+imx, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 for contour in contours:
   # get rectangle bounding contour
   [x, y, w, h] = cv2.boundingRect(contour)
 
-  # Don't plot small false positives that aren't text
-  if w < 20 and h < 20:
-    continue
-
-  if w > 45 or h > 45:
+  if w < 10 and h < 10: 
     continue
 
   # draw rectangle around contour on original image
