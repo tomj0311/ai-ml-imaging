@@ -2,10 +2,9 @@ import cv2, numpy as np, imutils
 import image_resize
 import image_ptform
 
-image = cv2.imread('x1.jpg')
+image = cv2.imread('Untitled_01_of_24.jpg')
 ratio = 1 #image.shape[0] / 500.0 reduced by half
 orig = image.copy()
-image_resize.resize(image)
 
 gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 blured = cv2.GaussianBlur(gray, (3,3), 0)
@@ -31,7 +30,7 @@ for c in cnts:
 warped = image_ptform.four_point_transform(orig, screenCnt.reshape(4, 2) * ratio)
 
 cv2.imshow("warped", warped)
-cv2.imshow("image", image)
+#cv2.imshow("image", image)
 cv2.waitKey(0)
 
 # warped = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)

@@ -12,7 +12,7 @@ def eqhist_clahe(img):
   # res = np.hstack((img,cl1)) #stacking images side-by-side
   return cl1
 
-img = cv2.imread('images/XBGDQ.png')
+img = cv2.imread('images/a6.jpg')
 img = image_resize.resize(img, width=600)
 
 imgx = eqhist_clahe(img)
@@ -21,26 +21,38 @@ cv2.imshow('eahist', imgx)
 cv2.waitKey(0)
 
 # gray = cv2.cvtColor(imgx, cv2.COLOR_BGR2GRAY) Histogram equalized image is alredy gray
-thresha = cv2.adaptiveThreshold(imgx.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+ret, thresha = cv2.threshold(imgx.copy(), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+# thresha = cv2.adaptiveThreshold(imgx.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 111, 2)
+
+image_final = cv2.bitwise_and(imgx, imgx, thresha)
 
 cv2.imshow('thresha', thresha)
 cv2.waitKey(0)
 
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-morphed = cv2.morphologyEx(thresha, cv2.MORPH_DILATE, kernel)
-
-morphed = cv2.morphologyEx(morphed, cv2.MORPH_ERODE, kernel)
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 3))
+morphed = cv2.morphologyEx(image_final, cv2.MORPH_OPEN, kernel)
 
 cv2.imshow('morphed', morphed)
 cv2.waitKey(0)
 
-# binarize final 
-ret, thresh = cv2.threshold(morphed, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
+# kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+# morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel)
 
-cv2.imshow('binary', thresh)
+cv2.imshow('morphed', morphed)
 cv2.waitKey(0)
 
-imx, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+ret, thresh = cv2.threshold(morphed, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
+
+cv2.imshow('thresh', thresh)
+cv2.waitKey(0)
+
+morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 3))
+connected = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, morph_kernel, iterations=2)
+
+cv2.imshow('connected', connected)
+cv2.waitKey(0)
+
+imx, contours, hierarchy = cv2.findContours(connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 for contour in contours:
   # get rectangle bounding contour
@@ -50,7 +62,7 @@ for contour in contours:
     continue
 
   # draw rectangle around contour on original image
-  cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
+  cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 1)
 
 cv2.imshow('img', img)
 cv2.waitKey(0)

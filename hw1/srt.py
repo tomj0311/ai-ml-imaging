@@ -1,58 +1,46 @@
 import cv2
-import numpy as np
-import imutils
+import numpy as np, imutils  as im
 
-# Params
-maxArea = 150
-minArea = 10
+#import image
+image = cv2.imread('images/devex1.jpeg')
 
-# Read image
-img = cv2.imread('images/659175809_008.tif')
-img = imutils.resize(img, width=800)
-
-# Convert to gray
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-# Threshold
-ret, thresh = cv2.threshold(gray,127,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-
-cv2.imshow('thresh', thresh)
+cv2.imshow('orig',image)
 cv2.waitKey(0)
 
-# Keep only small components but not to small
-comp = cv2.connectedComponentsWithStats(thresh)
+#grayscale
+gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 
-labels = comp[1]
-labelStats = comp[2]
-labelAreas = labelStats[:,4]
-
-for compLabel in range(1,comp[0],1):
-
-    if labelAreas[compLabel] > maxArea or labelAreas[compLabel] < minArea:
-        labels[labels==compLabel] = 0
-
-labels[labels>0] =  1
-
-# Do dilation
-se = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(13,5))
-dilateText = cv2.morphologyEx(labels.astype(np.uint8),cv2.MORPH_DILATE,se)
-
-cv2.imshow('dilated', dilateText)
+cv2.imshow('gray',gray)
 cv2.waitKey(0)
 
-# Find connected component again
-comp = cv2.connectedComponentsWithStats(dilateText)
+#binary
+ret,thresh = cv2.threshold(gray,127,255,cv2.THRESH_BINARY_INV)
+cv2.imshow('second',thresh)
+cv2.waitKey(0)
 
-# Draw a rectangle around the text
-labels = comp[1]
-labelStats = comp[2]
-#labelAreas = labelStats[:,4]
+#dilation
+kernel = np.ones((5,50), np.uint8)
+img_dilation = cv2.dilate(thresh, kernel, iterations=1)
+cv2.imshow('dilated',img_dilation)
+cv2.waitKey(0)
 
-for compLabel in range(1,comp[0],1):
+#find contours
+im2,ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    cv2.rectangle(img,(labelStats[compLabel,0],labelStats[compLabel,1]),
-        (labelStats[compLabel,0]+labelStats[compLabel,2],
-        labelStats[compLabel,1]+labelStats[compLabel,3]),(0,0,255),2)
-    
-cv2.imshow('final', img)
+#sort contours
+sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+
+for i, ctr in enumerate(sorted_ctrs):
+    # Get bounding box
+    x, y, w, h = cv2.boundingRect(ctr)
+
+    # Getting ROI
+    # roi = image[y:y+h, x:x+w]
+
+    # show ROI
+    # cv2.imshow('segment no:'+str(i),roi)
+    cv2.rectangle(image,(x,y),( x + w, y + h ),(90,0,255),2)
+
+image = im.resize(image, width=800)
+cv2.imshow('marked areas',image)
 cv2.waitKey(0)
