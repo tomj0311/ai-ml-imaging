@@ -1,103 +1,70 @@
 import sys
-import cv2, numpy as np
+import cv2, numpy as np, imutils as im
 
 import image_resize 
+import skewCorrection as sc
 
-def eqhist_clahe(img):
-  img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-  equ = cv2.equalizeHist(img)
-  # Contrast liomited adaptive histogram equalization
-  clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-  cl1 = clahe.apply(img)
-  # res = np.hstack((img,cl1)) #stacking images side-by-side
-  return cl1
+img = cv2.imread('images/a1.png')
+img = im.resize(img, width=1200)
+imgCopy = img.copy()
 
-img = cv2.imread('images/a6.jpg')
-img = image_resize.resize(img, width=600)
+# blur = cv2.GaussianBlur(img, (5,5), 0)
+# ret, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-imgx = eqhist_clahe(img)
+# a more effective method saving more details
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+gray = cv2.bitwise_not(gray)
 
-cv2.imshow('eahist', imgx)
-cv2.waitKey(0)
-
-# gray = cv2.cvtColor(imgx, cv2.COLOR_BGR2GRAY) Histogram equalized image is alredy gray
-ret, thresha = cv2.threshold(imgx.copy(), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-# thresha = cv2.adaptiveThreshold(imgx.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 111, 2)
-
-image_final = cv2.bitwise_and(imgx, imgx, thresha)
-
-cv2.imshow('thresha', thresha)
-cv2.waitKey(0)
-
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 3))
-morphed = cv2.morphologyEx(image_final, cv2.MORPH_OPEN, kernel)
-
-cv2.imshow('morphed', morphed)
-cv2.waitKey(0)
-
-# kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-# morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel)
-
-cv2.imshow('morphed', morphed)
-cv2.waitKey(0)
-
-ret, thresh = cv2.threshold(morphed, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  
+thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
 cv2.imshow('thresh', thresh)
 cv2.waitKey(0)
 
-morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 3))
-connected = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, morph_kernel, iterations=2)
+morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 12))
+connected = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, morph_kernel)
 
 cv2.imshow('connected', connected)
 cv2.waitKey(0)
 
-imx, contours, hierarchy = cv2.findContours(connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+imx, contours,hierarchy = cv2.findContours(connected,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
-for contour in contours:
-  # get rectangle bounding contour
-  [x, y, w, h] = cv2.boundingRect(contour)
-
-  if w < 10 and h < 10: 
-    continue
-
-  # draw rectangle around contour on original image
-  cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 1)
-
-cv2.imshow('img', img)
+cv2.imshow('img', gray)
 cv2.waitKey(0)
-cv2.destroyAllWindows()
 
-sys.exit()
-
-samples =  np.empty((0,100))
-responses = []
-keys = [i for i in range(48,58)]
+samples =  np.empty((0,400))
+labels = []
 
 for cnt in contours:
-  if cv2.contourArea(cnt)>50:
-    [x,y,w,h] = cv2.boundingRect(cnt)
-    if  h>28:
-      cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
-      roi = thresh[y:y+h,x:x+w]
-      roistd = cv2.resize(roi,(10,10))
 
-      cv2.imshow('norm',img)
-      key = cv2.waitKey(0)
+  [x, y, w, h] = cv2.boundingRect(cnt)
+  
+  if w > 300 or h > 300:
+    continue  
 
-      if key == 27:  # (escape to quit)
-        sys.exit()
-      elif key in keys:
-        responses.append(int(chr(key)))
-        sample = roistd.reshape((1,100))
-        samples = np.append(samples,sample,0)
+  if w < 5 or h < 5:
+    continue
 
-responses = np.array(responses,np.float32)
-responses = responses.reshape((responses.size,1))
+  cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+
+  roi = thresh[y:y+h,x:x+w]
+  roistd = cv2.resize(roi,(20, 20))
+
+  cv2.imshow('norm', roistd)
+  key = cv2.waitKey(0)
+
+  if key == 27:  # (escape to quit)
+    break
+  else:
+    labels.append(int(chr(key)))
+    sample = roistd.reshape((1, 400))
+    samples = np.append(samples,sample, 0)
+
+labels = np.array(labels, np.float32)
+labels = labels.reshape((labels.size, 1))
 print("training complete")
 
-np.savetxt('samples.data',samples)
-np.savetxt('responses.data',responses)
+np.savetxt('alphabets.data', samples)
+np.savetxt('alphabetlabels.data', labels)
 
 
 

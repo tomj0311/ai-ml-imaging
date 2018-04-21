@@ -70,7 +70,7 @@ def final_ex(file_name):
         # Don't plot small false positives that aren't text
             
         cropped = img[y :y +  h , x : x + w]
-        cv2.imwrite('cropped/' + str(index) + '.png', cropped)
+        # cv2.imwrite('cropped/' + str(index) + '.png', cropped)
             
         # text = pytesseract.image_to_string(cropped, lang = 'eng')
         # print(text)

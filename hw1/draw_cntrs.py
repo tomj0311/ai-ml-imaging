@@ -1,28 +1,18 @@
-import cv2, numpy as np
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
-def drawBoundingBox(img, cntrs):
+# Make an array with ones in the shape of an 'X'
+a = np.eye(10,10)
+a += a[::-1,:]
 
-  im, contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) 
+fig = plt.figure()
+ax1 = fig.add_subplot(121)
+# Bilinear interpolation - this will look blurry
+ax1.imshow(a, cmap=cm.Greys_r)
 
-  for contour in contours:
-    # get rectangle bounding contour
-    [x, y, w, h] = cv2.boundingRect(contour)
+ax2 = fig.add_subplot(122)
+# 'nearest' interpolation - faithful but blocky
+ax2.imshow(a, interpolation='nearest', cmap=cm.Greys_r)
 
-    # Don't plot small false positives that aren't text
-    # if w < 15 and h < 15:
-    # continue?
-    
-
-    # draw rectangle around contour on original image
-    cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 2)
-
-    '''
-    #you can crop image and send to OCR  , false detected will return no text :)
-    cropped = img_final[y :y +  h , x : x + w]
-
-    s = file_name + '/crop_' + str(index) + '.jpg' 
-    cv2.imwrite(s , cropped)
-    index = index + 1
-
-    '''
-
+plt.show()

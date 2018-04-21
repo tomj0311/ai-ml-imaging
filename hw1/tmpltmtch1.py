@@ -1,6 +1,7 @@
 import numpy as np, imutils
 import cv2
 import image_ptform
+import glob
 
 def templateMatch(image, template):
 
@@ -26,7 +27,6 @@ def templateMatch(image, template):
 	
 	warped = image_ptform.four_point_transform(imageGray, screenCnt.reshape(4, 2) * 1)
 
-
 	w,h = templateGray.shape[::-1]
 
 	res = cv2.matchTemplate(warped,templateGray,cv2.TM_CCOEFF_NORMED)
@@ -44,6 +44,8 @@ def templateMatch(image, template):
 
 	
 image = cv2.imread('images/Untitled_01_of_24.jpg')
+
+templateFiles = glob.glob('images/t*.jpg')
 template1 = cv2.imread('images/t1.jpg')
 # template2 = cv2.imread('images/t2.jpg')
 
