@@ -2,7 +2,7 @@ import cv2, numpy as np, imutils
 import image_resize
 import image_ptform
 
-image = cv2.imread('Untitled_01_of_24.jpg')
+image = cv2.imread('l1pngjpg')
 ratio = 1 #image.shape[0] / 500.0 reduced by half
 orig = image.copy()
 

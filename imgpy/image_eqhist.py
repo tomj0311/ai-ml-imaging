@@ -1,6 +1,6 @@
 import cv2, numpy as np
 
-img = cv2.imread("a6.jpg")
+img = cv2.imread("l1.png")
 
 img_y_cr_cb = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
 y, cr, cb = cv2.split(img_y_cr_cb)
