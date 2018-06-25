@@ -1,25 +1,9 @@
-"""Predict a handwritten integer (MNIST expert).
-
-Script requires
-1) saved model (model2.ckpt file) in the same location as the script is run from.
-(requried a model created in the MNIST expert tutorial)
-2) one argument (png file location of a handwritten integer)
-
-Documentation at:
-http://niektemme.com/ @@to do
-"""
-
 #import modules
 import sys
 import tensorflow as tf
 from PIL import Image, ImageFilter
 
 def predictint(imvalue):
-    """
-    This function returns the predicted integer.
-    The imput is the pixel values from the imageprepare() function.
-    """
-    
     # Define the model (same as when creating the model file)
     x = tf.placeholder(tf.float32, [None, 784])
     W = tf.Variable(tf.zeros([784, 10]))
@@ -69,14 +53,6 @@ def predictint(imvalue):
     init_op = tf.initialize_all_variables()
     saver = tf.train.Saver()
     
-    """
-    Load the model2.ckpt file
-    file is stored in the same directory as this python script is started
-    Use the model to predict the integer. Integer is returend as list.
-
-    Based on the documentatoin at
-    https://www.tensorflow.org/versions/master/how_tos/variables/index.html
-    """
     with tf.Session() as sess:
         sess.run(init_op)
         saver.restore(sess, "model2.ckpt")
@@ -87,10 +63,6 @@ def predictint(imvalue):
 
 
 def imageprepare(argv):
-    """
-    This function returns the pixel values.
-    The imput is a png file location.
-    """
     im = Image.open(argv).convert('L')
     width = float(im.size[0])
     height = float(im.size[1])

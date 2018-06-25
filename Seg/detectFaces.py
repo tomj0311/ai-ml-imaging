@@ -2,7 +2,6 @@ import cv2, numpy as np
 import imutils
 import sys
 import image_resize as ir
-import image_eqhist as eh
 
 def detectFace(image, cascade):
     img_copy = np.copy(image)

@@ -18,14 +18,9 @@ train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
 init_op = tf.initialize_all_variables()
 saver = tf.train.Saver()
 
-
 # Train the model and save the model to disk as a model.ckpt file
 # file is stored in the same directory as this python script is started
-"""
-The use of 'with tf.Session() as sess:' is taken from the Tensor flow documentation
-on on saving and restoring variables.
-https://www.tensorflow.org/versions/master/how_tos/variables/index.html
-"""
+
 with tf.Session() as sess:
     sess.run(init_op)
     for i in range(1000):
