@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import image_resize
-import pytesseract
 
 #method 1
 #img = cv2.imread('images/IMG_20180331_180458.jpg', 0) handwritten
@@ -24,5 +23,4 @@ closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
 cv2.imshow('closing',closing)
 cv2.waitKey(0)
 
-text = pytesseract.image_to_string(closing, lang = 'eng')
 print(text)
